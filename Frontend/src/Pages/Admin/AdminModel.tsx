@@ -7,12 +7,16 @@ import {
     TableRow,
     TableCell
   } from "@heroui/react";
-
 export default function AdminModel() {
+
+
+
+
   return (
-    <div className="max-w-7xl mx-auto p-4">
+    <div className="p-6">
+     
       <h1 className="text-2xl font-bold mb-4">Models</h1>
-      <Table aria-label="Example static collection table">
+      <Table aria-label="Example static collection table" >
       <TableHeader>
         <TableColumn>NAME</TableColumn>
         <TableColumn>ROLE</TableColumn>

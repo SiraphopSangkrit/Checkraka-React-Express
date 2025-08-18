@@ -20,6 +20,8 @@ app.use(morgan("tiny"));
 
 const categoryRoutes = require('./Routes/CategoryRoute');
 app.use('/api/categories', categoryRoutes);
+const brandRoutes = require('./Routes/BrandRoute');
+app.use('/api/brands', brandRoutes);
 
 // Handle MongoDB connection events
 db.on('connected', () => {

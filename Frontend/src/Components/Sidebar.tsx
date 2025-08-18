@@ -1,52 +1,27 @@
 import { Link, useLocation } from "react-router";
-import {
-  House,
-  Users,
-  ChevronDown,
-  ChevronRight,
-  Settings,
-  Car,
-  Bike,
-  Truck,
-  ArrowUpRight,
-  Blocks
-} from "lucide-react";
-import { useState } from "react";
+import * as LucideIcons from "lucide-react";
+import { useState, useEffect, useMemo } from "react";
 import { ThemeSwitcher } from "./ThemeSwitcher";
+import { useCategories } from "../contexts/CategoriesContext";
+import type { LucideIcon } from "lucide-react";
 
 interface NavigationItem {
   name: string;
   href?: string;
-  icon?: any;
+  icon?: string;
   children?: NavigationItem[];
 }
 
-const navigation: NavigationItem[] = [
-  { name: "Dashboard", href: "/admin", icon: House },
-
-  {
-    name: "Products",
-    icon: ArrowUpRight,
-    children: [
-      { name: "Cars", href: "/admin/product/cars", icon: Car },
-      { name: "Motorcycles", href: "/admin/product/motorcycles", icon: Bike },
-      { name: "Trucks", href: "/admin/product/trucks", icon: Truck },
-    ],
-  },
-  {
-    name: "Category",
-    href: "/admin/categories",
-    icon: Blocks,
-  },
-  {
-    name: "Settings",
-    icon: Settings,
-    children: [
-      { name: "General", href: "/admin/settings/general", icon: Settings },
-      { name: "Users", href: "/admin/settings/users", icon: Users },
-    ],
-  },
-];
+const IconComponent = ({ iconName }: { iconName: string }) => {
+  const icons = LucideIcons as unknown as Record<string, LucideIcon>;
+  const Icon = icons[iconName];
+  
+  if (!Icon) {
+    return <LucideIcons.Package size={24} />;
+  }
+  
+  return <Icon size={24} />;
+};
 
 interface SidebarProps {
   isCollapsed?: boolean;
@@ -56,6 +31,49 @@ interface SidebarProps {
 export default function Sidebar({ isCollapsed = false }: SidebarProps) {
   const location = useLocation();
   const [expandedItems, setExpandedItems] = useState<string[]>([]);
+  const { categories } = useCategories();
+  
+  // Filter only active categories for sidebar
+  const activeCategories = categories.filter(cat => cat.isActive).sort((a, b) => a.title.localeCompare(b.title));
+
+  // Generate navigation items dynamically based on categories
+  const dynamicNavigation = useMemo(() => {
+    return [
+      { name: "Dashboard", href: "/admin", icon: "House" },
+      {
+        name: "Products",
+        icon: "ArrowUpRight",
+        children: activeCategories.map((category): NavigationItem => ({
+          name: category.title,
+          href: `/admin/product/${category.slug}`,
+          icon: category.icon || "Package",
+        })),
+      },
+      {
+        name: "Category",
+        href: "/admin/categories",
+        icon: "Blocks",
+      },
+      {
+        name: "Brands",
+        href: "/admin/brands",
+        icon: "Blocks",
+      },
+      {
+        name: "Models",
+        href: "/admin/models",
+        icon: "Blocks",
+      },
+      {
+        name: "Settings",
+        icon: "Settings",
+        children: [
+          { name: "General", href: "/admin/settings/general", icon: "Settings" },
+          { name: "Users", href: "/admin/settings/users", icon: "Users" },
+        ],
+      },
+    ];
+  }, [activeCategories]);
 
   const toggleExpanded = (itemName: string) => {
     setExpandedItems((prev) =>
@@ -92,21 +110,20 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
             } group flex items-center w-full px-2 py-2 text-sm font-medium rounded-md transition-colors`}
           >
             {item.icon && (
-              <item.icon
+              <div
                 className={`${
                   hasActiveChildren ? "text-primary" : "text-default-400"
-                } mr-3 flex-shrink-0 h-6 w-6`}
-                aria-hidden="true"
-              />
+                } mr-3 flex-shrink-0`}
+              >
+                <IconComponent iconName={item.icon} />
+              </div>
             )}
             {!isCollapsed && (
               <>
                 <span className="flex-1 text-left">{item.name}</span>
-                {isExpanded ? (
-                  <ChevronDown className="h-4 w-4" />
-                ) : (
-                  <ChevronRight className="h-4 w-4" />
-                )}
+                <IconComponent
+                  iconName={isExpanded ? "ChevronDown" : "ChevronRight"}
+                />
               </>
             )}
           </button>
@@ -125,14 +142,15 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
                   } group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors`}
                 >
                   {child.icon && (
-                    <child.icon
+                    <div
                       className={`${
                         isItemActive(child.href)
                           ? "text-primary-foreground"
                           : "text-default-400"
-                      } mr-3 flex-shrink-0 h-5 w-5`}
-                      aria-hidden="true"
-                    />
+                      } mr-3 flex-shrink-0`}
+                    >
+                      <IconComponent iconName={child.icon} />
+                    </div>
                   )}
                   {child.name}
                 </Link>
@@ -154,12 +172,15 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
             : "text-foreground hover:bg-content2"
         } group flex items-center px-2 py-2 text-sm font-medium rounded-md transition-colors`}
       >
-        <item.icon
-          className={`${
-            isActive ? "text-primary-foreground" : "text-default-400"
-          } mr-3 flex-shrink-0 h-6 w-6`}
-          aria-hidden="true"
-        />
+        {item.icon && (
+          <div
+            className={`${
+              isActive ? "text-primary-foreground" : "text-default-400"
+            } mr-3 flex-shrink-0`}
+          >
+            <IconComponent iconName={item.icon} />
+          </div>
+        )}
         {!isCollapsed && item.name}
       </Link>
     );
@@ -169,10 +190,10 @@ export default function Sidebar({ isCollapsed = false }: SidebarProps) {
     <div className="flex flex-col h-full">
       <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
         <nav className="mt-5 flex-1 px-2 space-y-1">
-          {navigation.map(renderNavigationItem)}
+          {dynamicNavigation.map(renderNavigationItem)}
         </nav>
-        <div className="p-4 flex justify-center ">
-          <ThemeSwitcher></ThemeSwitcher>
+        <div className="p-4 flex justify-center">
+          <ThemeSwitcher />
         </div>
       </div>
     </div>

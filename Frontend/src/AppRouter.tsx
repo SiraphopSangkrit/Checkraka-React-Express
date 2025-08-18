@@ -2,9 +2,9 @@ import { createBrowserRouter } from "react-router";
 import AppLayout from "./Layout/AppLayout";
 import AdminLayout from "./Layout/AdminLayout";
 import Index from "./Pages";
-import AdminModel from "./Pages/Admin/Products/AdminModel";
-import AdminCategory from "./Pages/Admin/Products/AdminCategory";
-import AdminBrand from "./Pages/Admin/Products/AdminBrand";
+import AdminModel from "./Pages/Admin/AdminModel";
+import AdminProduct from "./Pages/Admin/Products/AdminProduct";
+import AdminBrand from "./Pages/Admin/AdminBrand";
 import AdminProductCategory from "./Pages/Admin/AdminProductCategory";
 
 const router = createBrowserRouter([
@@ -28,14 +28,14 @@ const router = createBrowserRouter([
       },
       {
         path: "product/:category",
-        element: <AdminCategory />,
+        element: <AdminProduct />,
       },
       {
-        path: "product/:category/brand",
+        path: "brands",
         element: <AdminBrand />,
       },
       {
-        path: "product/:category/models",
+        path: "models",
         element: <AdminModel />,
       },
       {
