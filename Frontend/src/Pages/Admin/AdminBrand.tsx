@@ -6,7 +6,6 @@ import {
   TableRow,
   TableCell,
   Button,
-  Link,
   useDisclosure,
   Modal,
   ModalHeader,
@@ -14,9 +13,48 @@ import {
   ModalFooter,
   ModalContent,
   Input,
+  Autocomplete,
+  AutocompleteSection,
+  AutocompleteItem,
 } from "@heroui/react";
+import { useEffect, useState } from "react";
+import FileInputWithPreview from "../../Components/FileInputWithPreview";
+import { getCategories } from "../../api/CategoryApi";
+
 export default function AdminBrand() {
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [brandName, setBrandName] = useState("");
+
+  type CategoryType = {
+    _id: string;
+    title: string;
+   
+  };
+  
+  const [category, setCategory] = useState<CategoryType[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string>("");
+
+  const fetchCategories = async () => {
+    // Fetch categories from your API or data source
+    const data = await getCategories();
+    setCategory(data);
+  };
+  
+
+  const handleSave = () => {
+    // Here you would typically upload the file and save the brand
+    console.log("Brand Name:", brandName);
+    console.log("Selected File:", selectedFile);
+
+    // Reset form
+    setBrandName("");
+    setSelectedFile(null);
+  };
+
+  useEffect(() => {
+    fetchCategories();
+  }, []);
   return (
     <div className="p-6">
       <div className="flex justify-between items-center mb-6">
@@ -62,21 +100,57 @@ export default function AdminBrand() {
             <>
               <ModalHeader>Add New Brand</ModalHeader>
               <ModalBody>
-                <div className="space-y-4">
+                <div className="space-y-6">
                   <Input
                     label="Brand Name"
                     placeholder="Enter brand name"
+                    value={brandName}
+                    onValueChange={setBrandName}
                     className="w-full"
                   />
-                    <Input
-                        label="Brand Logo"
-                        type="file"
-                        placeholder="Enter logo URL"
-                        className="w-full"/>
+
+                  <Autocomplete 
+                    label="Category" 
+                    placeholder="Search Category"
+                    selectedKey={selectedCategory}                          // Controlled value
+                    onSelectionChange={(key) => setSelectedCategory(key as string)} // Handle selection
+                    className="w-full"
+                  >
+                    {category.map((cat) => (
+                      <AutocompleteItem key={cat._id}>
+                        {cat.title}
+                      </AutocompleteItem>
+                    ))}
+                  </Autocomplete>
+
+                  {/* File Upload Section */}
+                  <div className="space-y-3">
+                    <label className="text-sm font-medium text-foreground">
+                      Brand Logo
+                    </label>
+
+                    <FileInputWithPreview
+                      onFileChange={setSelectedFile}
+                      accept="image/*"
+                      maxSize={5}
+                      placeholder="Click to upload logo or drag and drop"
+                      value={selectedFile}
+                    />
+                  </div>
                 </div>
               </ModalBody>
               <ModalFooter>
-                <Button color="primary" onPress={onClose}>
+                <Button color="danger" variant="light" onPress={onClose}>
+                  Cancel
+                </Button>
+                <Button
+                  color="primary"
+                  onPress={() => {
+                    handleSave();
+                    onClose();
+                  }}
+                  isDisabled={!brandName.trim() || !selectedFile}
+                >
                   Save
                 </Button>
               </ModalFooter>
