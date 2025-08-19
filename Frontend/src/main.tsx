@@ -9,7 +9,7 @@ import { CategoriesProvider } from "./contexts/CategoriesContext";
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <HeroUIProvider>
-     <ToastProvider/>
+     <ToastProvider placement="top-center"/>
      <CategoriesProvider>
         <div className="text-foreground bg-default min-h-screen">
           <RouterProvider router={router} />

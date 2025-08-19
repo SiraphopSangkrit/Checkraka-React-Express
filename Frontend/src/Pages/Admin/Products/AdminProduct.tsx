@@ -20,7 +20,12 @@ export default function AdminProduct() {
             ? category.charAt(0).toUpperCase() + category.slice(1)
             : "Unknown Category"}
         </h1>
-        <Button color="primary">Add New {category?.slice(0, -1)}</Button>
+        <Button color="primary">
+          Add New{" "}
+          {(category
+            ? category.charAt(0).toUpperCase() + category.slice(1)
+            : "Category")}
+        </Button>
       </div>
       <Table aria-label="Example static collection table">
         <TableHeader>
