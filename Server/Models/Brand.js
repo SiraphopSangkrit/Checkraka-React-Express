@@ -12,10 +12,7 @@ const brandSchema = new mongoose.Schema(
     slug: {
       type: String,
     },
-    isActive: {
-      type: Boolean,
-      default: true,
-    },
+   
     categories: [{
         category: {
           type: mongoose.Schema.Types.ObjectId,

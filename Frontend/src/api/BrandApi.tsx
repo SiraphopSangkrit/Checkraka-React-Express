@@ -6,7 +6,11 @@ interface BrandData {
     name: string;
     nameTH?: string;
     slug?: string;
-    categories?: { category?: string; logo?: string; isActive?: boolean }[];
+    categories?: { 
+        category?: string; 
+        logo?: string; 
+        isActive?: boolean;
+    }[];
 }
 
 export const getBrands = async()=>{
@@ -19,19 +23,35 @@ export const getBrands = async()=>{
     }
 }
 
-export const createBrands = async(data:BrandData)=>{
+export const getBrandsByCategory = async(categoryId: string)=>{
     try {
-        const response = await axios.post("brands",data);
+        const response = await axios.get(`brands/category/${categoryId}`);
         return response.data;
     } catch (error) {
-        console.error("Error fetching brands:", error);
+        console.error("Error fetching brands by category:", error);
         throw error;
     }
 }
 
-export const updateBrand = async(id:string, data:BrandData)=>{
+export const createBrands = async(data: FormData)=>{
+    try {
+
+        const response = await axios.post("brands", data);
+        return response.data;
+    } catch (error: any) {
+        console.error("Error creating brands:", error);
+        console.error("Error response:", error.response?.data);
+        throw error;
+    }
+}
+
+export const updateBrand = async(id:string, data:BrandData | FormData)=>{
     try{   
-        const response = await axios.put(`brands/${id}`, data);
+        const config = data instanceof FormData 
+            ? { headers: { 'Content-Type': 'multipart/form-data' } }
+            : { headers: { 'Content-Type': 'application/json' } };
+            
+        const response = await axios.put(`brands/${id}`, data, config);
         return response.data;
 
     }catch(error){
